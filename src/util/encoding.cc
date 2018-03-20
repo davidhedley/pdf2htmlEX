@@ -174,7 +174,9 @@ void writeAttribute(std::ostream & out, const std::string & s)
                 out << "&#96;";
                 break;
             default:
-                out << c;
+                if (c >= 0x20) {
+                    out << c;
+                }
         }
     }
 }
