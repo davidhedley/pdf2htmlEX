@@ -52,8 +52,11 @@ static void dumb_logwarning(const char * format, ...) { }
 
 static void dumb_post_error(const char * title, const char * error, ...) { }
 
+extern int ff_errorCounter;
+
 void ffw_init(int debug)
 {
+ff_errorCounter = 0;
     InitSimpleStuff();
     if ( default_encoding==NULL )
         default_encoding=FindOrMakeEncoding("ISO8859-1");
