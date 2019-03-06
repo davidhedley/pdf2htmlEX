@@ -26,6 +26,9 @@
 //
 //========================================================================
 
+#undef MULTITHREADED
+
+
 #ifndef CAIROFONTENGINE_H
 #define CAIROFONTENGINE_H
 

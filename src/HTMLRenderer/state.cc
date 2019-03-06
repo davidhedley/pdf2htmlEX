@@ -18,6 +18,9 @@ namespace pdf2htmlEX {
 
 using std::max;
 using std::abs;
+using std::cerr;
+using std::endl;
+
 
 void HTMLRenderer::updateAll(GfxState * state) 
 { 
@@ -391,7 +394,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
 
         if(merged && !equal(state->getHorizScaling(), 0))
         {
-            html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale / state->getHorizScaling());
+            html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale / abs(state->getHorizScaling()));
             if(equal(dy, 0))
             {
                 cur_text_state.vertical_align = 0;

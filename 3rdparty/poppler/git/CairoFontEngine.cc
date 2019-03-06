@@ -35,6 +35,7 @@
 //========================================================================
 
 #include <poppler-config.h>
+#undef MULTITHREADED
 
 #include <string.h>
 #include "CairoFontEngine.h"

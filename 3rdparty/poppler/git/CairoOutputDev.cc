@@ -36,6 +36,7 @@
 //========================================================================
 
 #include <poppler-config.h>
+#undef MULTITHREADED
 
 #ifdef USE_GCC_PRAGMAS
 #pragma implementation
