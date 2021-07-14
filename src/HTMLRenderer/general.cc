@@ -89,8 +89,10 @@ HTMLRenderer::HTMLRenderer(Param & param)
             [this](cairo_t *cairo, double * box, int what) { covered_text_detector.add_non_char_bbox(cairo, box, what); };
 }
 
+	// DCRH: Don't bother to clean up, just exit. We sometimes get double free errors
 HTMLRenderer::~HTMLRenderer()
 {
+	exit(0);
     ffw_finalize();
 }
 
