@@ -262,16 +262,24 @@ void HTMLRenderer::check_state_change(GfxState * state)
         tm_multiply(m2, state->getCTM(), state->getTextMat()); 
         tm_multiply(new_text_tm, m2, m1);
 
-/*	cerr << " new_text_tm " << new_text_tm[0] << "," << new_text_tm[1] << ","
-		<< new_text_tm[2] << ","
-		<< new_text_tm[3] << ","
-		<< new_text_tm[4] << ","
-		<< new_text_tm[5] << "\n";
-*/
+// cerr << " new_text_tm " << new_text_tm[0] << "," << new_text_tm[1] << ","
+// 	<< new_text_tm[2] << ","
+// 	<< new_text_tm[3] << ","
+// 	<< new_text_tm[4] << ","
+// 	<< new_text_tm[5] << "\n";
+
         if(!tm_equal(new_text_tm, cur_text_tm))
         {
+// cerr << "new Tm different. Reset everything\n";
+
             need_recheck_position = true;
             need_rescale_font = true;
+	    // FIXME: DCRH: If the text matrix has changed, abort the current line. If we don't do this, sometimes the 
+	    // computation to determine offsets etc get screwed up. One to fix at a later date
+	    // Example docs: test/Pages from 1000435_AMM_QFA_A330_r20.pdf (QFE-QID-09002711801F2ED4)
+	    // and test/Pages from 25-40-06_R35_DIR_10267244.pdf (BAM-IMP-1638109493-00386)
+            set_line_state(new_line_state, NLS_NEWLINE);
+
             memcpy(cur_text_tm, new_text_tm, sizeof(cur_text_tm));
         }
     }
@@ -359,14 +367,14 @@ void HTMLRenderer::check_state_change(GfxState * state)
             double det = old_tm[0] * old_tm[3] - old_tm[1] * old_tm[2];
             if(!equal(det, 0))
             {
-//		    cerr << "check position cur_tx = " << cur_tx << " draw_tx = " << draw_tx << "\n";
+// cerr << "check position cur_tx = " << cur_tx << " draw_tx = " << draw_tx << "\n";
                 double lhs1 = cur_text_tm[0] * cur_tx + cur_text_tm[2] * cur_ty + cur_text_tm[4] - old_tm[0] * draw_tx - old_tm[2] * draw_ty - old_tm[4];
                 double lhs2 = cur_text_tm[1] * cur_tx + cur_text_tm[3] * cur_ty + cur_text_tm[5] - old_tm[1] * draw_tx - old_tm[3] * draw_ty - old_tm[5];
 
-//		cerr << "cur_tx transformed = " << (cur_text_tm[0] * cur_tx + cur_text_tm[2] * cur_ty + cur_text_tm[4]) << "\n";
-//		cerr << "draw_tx transformed = " << (old_tm[0] * draw_tx + old_tm[2] * draw_ty + old_tm[4]) << "\n";
+// cerr << "cur_tx transformed = " << (cur_text_tm[0] * cur_tx + cur_text_tm[2] * cur_ty + cur_text_tm[4]) << "\n";
+// cerr << "draw_tx transformed = " << (old_tm[0] * draw_tx + old_tm[2] * draw_ty + old_tm[4]) << "\n";
 
-//		cerr << "tm " << cur_line_state.transform_matrix[0] << "," << cur_line_state.transform_matrix[1] << "," << cur_line_state.transform_matrix[2] << ","  << cur_line_state.transform_matrix[3] << "\n";
+// cerr << "tm " << cur_line_state.transform_matrix[0] << "," << cur_line_state.transform_matrix[1] << "," << cur_line_state.transform_matrix[2] << ","  << cur_line_state.transform_matrix[3] << "\n";
                 /*
                  * Now the equation system becomes
                  *
@@ -383,7 +391,7 @@ void HTMLRenderer::check_state_change(GfxState * state)
                 dy = inverted[1] * lhs1 + inverted[3] * lhs2;
 
 
-//		cerr << "draw_tx = " << draw_tx << ", dx = " << dx << "\n";
+// cerr << "draw_tx = " << draw_tx << ", dx = " << dx << ", dy = " << dy << "\n";
                 if(equal(dy, 0))
                 {
                     // text on a same horizontal line, we can insert positive or negative x-offsets
@@ -411,19 +419,9 @@ void HTMLRenderer::check_state_change(GfxState * state)
         }
         // else: different rotation: force new line
 	//
-	// FIXME: DCRH: Something goes wrong with the positional calculations in need_recheck_position in some circumstances when the Tm changes
-	// I can't figure it out for now, so just abort the line merging in these cases
-	// E.g. p.g. 3 of QFE-QID-09002711801F2ED4
-	if (merged && text_mat_changed && cur_text_tm[0] < 0) {
-		if (++text_mat_hack % 10 == 1) {
-			cerr << "\nTm changed " << text_mat_hack << " && cur_text_tm[0] = " << cur_text_tm[0] << " forcing new line\n";
-		}
-		merged = false;
-	}
-
         if(merged && !equal(state->getHorizScaling(), 0))
         {
-//		cerr << "Appending offset " << dx * old_draw_text_scale / abs(state->getHorizScaling()) << "\n";
+// cerr << "Appending offset " << dx * old_draw_text_scale / abs(state->getHorizScaling()) << "\n";
             html_text_page.get_cur_line()->append_offset(dx * old_draw_text_scale / abs(state->getHorizScaling()));
             if(equal(dy, 0))
             {
