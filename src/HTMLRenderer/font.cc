@@ -594,7 +594,7 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         bool retried = false; // avoid infinite loop
         for(int cur_code = 0; cur_code <= maxcode; ++cur_code)
         {
-            if(!used_map[cur_code])
+            if(!used_map || !used_map[cur_code])
                 continue;
 
             /*
