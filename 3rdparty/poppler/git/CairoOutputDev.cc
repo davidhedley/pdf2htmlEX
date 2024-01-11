@@ -46,6 +46,7 @@
 #include <math.h>
 #include <assert.h>
 #include <cairo.h>
+#include <cstdint>
 
 #include "goo/gfile.h"
 //#include "goo/gtypes_p.h"
