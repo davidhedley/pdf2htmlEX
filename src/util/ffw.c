@@ -111,7 +111,7 @@ void ffw_new_font()
     cur_fv = FVAppend(_FontViewCreate(SplineFontNew()));
 }
 
-void ffw_load_font(const char * filename)
+int ffw_load_font(const char * filename)
 {
     assert((cur_fv == NULL) && "Previous font is not destroyed");
 
@@ -120,8 +120,10 @@ void ffw_load_font(const char * filename)
 
     free(_filename);
 
-    if(!font)
-        err("Cannot load font %s\n", filename);
+    if(!font) {
+        fprintf(stderr, "Cannot load font %s\n", filename);
+	return 0;
+}
 
     if(!font->fv)
         FVAppend(_FontViewCreate(font));
@@ -138,6 +140,7 @@ void ffw_load_font(const char * filename)
         cur_fv->cidmaster->ascent = cur_fv->sf->ascent;
         cur_fv->cidmaster->descent = cur_fv->sf->descent;
     }
+return 1;
 }
 
 /*

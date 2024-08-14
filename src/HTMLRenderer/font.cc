@@ -380,7 +380,10 @@ void HTMLRenderer::embed_font(const string & filepath, GfxFont * font, FontInfo 
         cerr << "Embed font: " << filepath << " " << info.id << endl;
     }
 
-    ffw_load_font(filepath.c_str());
+    if (!ffw_load_font(filepath.c_str())) {
+	    export_remote_default_font(info.id);
+		return;	    
+    }
     ffw_prepare_font();
 
     if(param.debug)

@@ -28,7 +28,7 @@ long ffw_get_version(void);
 ////////////////////////
 // load & save
 void ffw_new_font();
-void ffw_load_font(const char * filename);
+int ffw_load_font(const char * filename);
 void ffw_prepare_font(void);
 
 void ffw_save(const char * filename);
